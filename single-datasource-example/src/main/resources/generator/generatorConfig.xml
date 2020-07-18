@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+
+    <!-- 加载配置文件 -->
+    <properties resource="generator/oracle.properties" />
+
+    <!-- 数据库驱动jar包 -->
+    <classPathEntry location="E:\spring-boot-example\single-datasource-example\lib\ojdbc6.jar" />
+
+    <context id="oracle" defaultModelType="flat" targetRuntime="MyBatis3">
+        <property name="javaFileEncoding" value="UTF-8"/>
+
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+            <property name="suppressDate" value="true"/>
+        </commentGenerator>
+
+        <!-- 数据库连接信息 -->
+        <jdbcConnection driverClass="${driver-class-name}" connectionURL="${url}" userId="${username}" password="${password}"></jdbcConnection>
+
+        <javaTypeResolver type="org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl">
+            <property name="forceBigDecimals" value="true"/>
+        </javaTypeResolver>
+
+        <!-- 实体类生成规则 -->
+        <javaModelGenerator targetPackage="com.example.single.datasource.model" targetProject="src/main/java">
+            <property name="enableSubPackages" value="false"/>
+            <property name="immutable" value="false"/>
+            <property name="rootClass" value="com.example.single.datasource.model.BaseEntity"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- Xml生成规则 -->
+        <sqlMapGenerator targetPackage="mybatis.oracle" targetProject="src/main/resources">
+            <property name="enableSubPackages" value="false"/>
+        </sqlMapGenerator>
+
+        <!-- Mapper类生成规则 -->
+        <javaClientGenerator targetPackage="com.example.single.datasource.mapper" targetProject="src/main/java" type="XMLMAPPER">
+            <property name="enableSubPackages" value="false"/>
+            <property name="rootInterface" value="com.example.single.datasource.mapper.BaseMapper"/>
+        </javaClientGenerator>
+
+        <!-- 数据库中的表，可以指定类名、属性名 -->
+        <table schema="" tableName="T_USER" domainObjectName="User"
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false">
+
+            <columnOverride column="CREATETIME" property="createTime" javaType="java.util.Date" />
+
+        </table>
+    </context>
+</generatorConfiguration>

@@ -1,0 +1,73 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /single-datasource-example
+
+spring:
+  application:
+    name: single-datasource-example
+  datasource:
+    druid:
+      name: signle-datasource-exmaple # 配置这个属性的意义在于，如果存在多个数据源，监控的时候可以通过名字来区分开来
+      driver-class-name: oracle.jdbc.driver.OracleDriver # 数据库驱动，可以不配置，会根据url自动识别
+      url: jdbc:oracle:thin:@//localhost:1521/XE # 连接数据库的url
+      username: SYSTEM # 连接数据库的用户名
+      # 数据库的密码（加密后的密码）
+      password: s1rYjtw5Da6uJ+lmeXZ/t/AGqM7cdgLUmzEMv4eudNHhiTgThuOKBmkrG2WIGhwkjy4upfH/FliPzeg7b75hhA==
+      initial-size: 5 # 初始化时建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时，默认值0
+      max-active: 100 # 最大连接池数量，默认值8
+      min-idle: 5 # 最小连接池数量
+      max-wait: 60000 # 获取连接时最大等待时间，单位毫秒
+      pool-prepared-statements: true # 是否缓存preparedStatement(PSCache)，oracle可以设置为true，mysql下建议false，默认false
+      max-pool-prepared-statement-per-connection-size: 20 # 要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true。默认-1
+      max-open-prepared-statements: 20
+      validation-query: SELECT 1 FROM DUAL # 用来检测连接是否有效的sql，要求是一个查询语句
+      validation-query-timeout: 5 # 单位：秒，检测连接是否有效的超时时间
+      test-on-borrow: false # 申请连接时执行validationQuery检测连接是否有效，设置成true会降低性能。
+      test-on-return: false # 归还连接时执行validationQuery检测连接是否有效，设置成true会降低性能。
+      # 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效
+      test-while-idle: true
+      # 有两个含义：1) Destroy线程会检测连接的间隔时间，如果连接空闲时间大于等于minEvictableIdleTimeMillis则关闭物理连接。2) testWhileIdle的判断依据
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000 # 连接保持空闲而不被驱逐的最小时间
+      async-init: true # 异步初始化
+      useGlobalDataSourceStat: true # 合并多个DruidDataSource的监控数据
+      filters: stat,slf4j,config # 可以使用的filter可以查看druid.jar\META-INF\druid-filter.properties
+      filter:
+        slf4j:
+          enabled: true
+        stat:
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 5000
+          merge-sql: true
+        config:
+          enabled: true
+      connect-properties:
+        # ConfigFilter类
+        config.decrypt: true
+        config.decrypt.key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAOPapoUinoiqzKf/AhmKD9JNzKcfDZyOgGMwBRgaPUGIlbHtgavnsaBSMT483XfT7v3jymWd/jBI4rUfhgU29wcCAwEAAQ== # 数据库密码公钥
+
+# org.mybatis.spring.boot.autoconfigure.MybatisProperties
+mybatis:
+  mapper-locations: classpath:mybatis/oracle/*.xml
+  # 扫描实体类的位置,在此处指明扫描实体类的包，在 xml 中就可以不用写pojo类的全路径名了
+  type-aliases-package: com.example.single.datasource.model
+
+#pagehelper分页插件
+pagehelper:
+  helperDialect: oracle # 数据库类型
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+logback:
+  dir: E:/spring-boot-example/logs/single-datasource-example
+  level: DEBUG
+  maxFileSize: 50MB
+  maxHistory: 7
+
+# 打印执行SQL
+#logging:
+#  level:
+#    com.example.single.datasource.mapper: DEBUG

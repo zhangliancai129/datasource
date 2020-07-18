@@ -1,0 +1,111 @@
+server:
+  port: 8084
+  servlet:
+    context-path: /multi-datasource-example
+
+spring:
+  application:
+    name: multi-datasource-example
+
+datasource:
+  oracle:
+    name: oracle-datasource
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@//localhost:1521/XE
+    username: SYSTEM
+    password: s1rYjtw5Da6uJ+lmeXZ/t/AGqM7cdgLUmzEMv4eudNHhiTgThuOKBmkrG2WIGhwkjy4upfH/FliPzeg7b75hhA==
+    initial-size: 5
+    max-active: 100
+    min-idle: 5
+    max-wait: 60000
+    pool-prepared-statements: true
+    max-pool-prepared-statement-per-connection-size: 20
+    max-open-prepared-statements: 20
+    validation-query: SELECT 1 FROM DUAL
+    validation-query-timeout: 5
+    test-on-borrow: false
+    test-on-return: false
+    test-while-idle: true
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    async-init: true
+    useGlobalDataSourceStat: true
+    filters: stat,slf4j,config
+    filter:
+      slf4j:
+        enabled: true
+      stat:
+        enabled: true
+        log-slow-sql: true
+        slow-sql-millis: 5000
+        merge-sql: true
+      config:
+        enabled: true
+    connect-properties:
+      config.decrypt: true
+      config.decrypt.key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAOPapoUinoiqzKf/AhmKD9JNzKcfDZyOgGMwBRgaPUGIlbHtgavnsaBSMT483XfT7v3jymWd/jBI4rUfhgU29wcCAwEAAQ==
+    transactionPointcutExpression: (execution(* com.example.multi.datasource.service.*.*(..)) or @annotation(org.springframework.transaction.annotation.Transactional))
+  mysql:
+    name: mysql-datasource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mysql?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: O386MyaJZqoKH9Yd2qOGF33ekGsWls4Odd4YTGZs2mpPFk9ngItzPl7Sf3KVCrYhWOqAyG3FZKx23SAeEXm/jA==
+    initial-size: 5
+    max-active: 100
+    min-idle: 5
+    max-wait: 60000
+    pool-prepared-statements: false
+    max-pool-prepared-statement-per-connection-size: -1
+    max-open-prepared-statements: 20
+    validation-query: select '1'
+    validation-query-timeout: 5
+    test-on-borrow: false
+    test-on-return: false
+    test-while-idle: true
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    async-init: true
+    useGlobalDataSourceStat: true
+    filters: stat,slf4j,config
+    filter:
+      slf4j:
+        enabled: true
+      stat:
+        enabled: true
+        log-slow-sql: true
+        slow-sql-millis: 5000
+        merge-sql: true
+      config:
+        enabled: true
+    connect-properties:
+      config.decrypt: true
+      config.decrypt.key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALIKSFyctJmct5ewulonvlyWGPOy7qP9WZsgfef5d0U/10lxfAOsYJVcheeJFVxLtdsKq76HWeXU4Gyf2QygLZECAwEAAQ==
+    transactionPointcutExpression: (execution(* com.example.multi.datasource.service.*.*(..)) or @annotation(org.springframework.transaction.annotation.Transactional))
+
+mybatis:
+  oracle:
+    mapper-locations: classpath:mybatis/oracle/*.xml
+    type-aliases-package: com.example.multi.datasource.model
+  mysql:
+    mapper-locations: classpath:mybatis/mysql/*.xml
+    type-aliases-package: com.example.multi.datasource.model
+
+# 分页插件在配置SqlSessionFactory时手动配置，所以，需要在启动时排除掉PageHelperAutoConfiguration自动配置
+pagehelper:
+  oracle:
+    helperDialect: oracle
+    reasonable: true
+    supportMethodsArguments: true
+    params: count=countSql
+  mysql:
+    helperDialect: mysql
+    reasonable: true
+    supportMethodsArguments: true
+    params: count=countSql
+
+logback:
+  dir: E:/spring-boot-example/logs/multi-datasource-example
+  level: INFO
+  maxFileSize: 1024MB
+  maxHistory: 7

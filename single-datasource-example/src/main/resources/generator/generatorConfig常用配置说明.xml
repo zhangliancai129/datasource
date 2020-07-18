@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<!--
+ 参考文档：
+    https://blog.csdn.net/testcs_dn/article/details/79295065
+    https://www.cnblogs.com/liaojie970/p/8032481.html
+ -->
+
+<generatorConfiguration>
+    <!-- properties标签：用于加载配置文件，然后在xml文件中就可以使用${propertyKey}的方式来引用配置项
+        有两个属性，但是只能选一个：
+        1. resource：配置资源加载地址，从classpath开始找，比如generator/oracle.properties
+        2. url：配置资源加载地址的绝对路径，比如file:///E:/spring-boot-example/single-datasource-example/src/main/resources/generator/oracle.properties
+        注意：如果使用了mybatis-generator-maven-plugin，那么在pom.xml中定义的properties都可以在xml文件中直接使用 -->
+    <properties resource="generator/oracle.properties" />
+
+    <!-- 需要额外加载的依赖包，jar包的全路径-->
+    <classPathEntry location="E:\spring-boot-example\single-datasource-example\lib\ojdbc6.jar" />
+
+    <!-- context标签：xml的主要配置内容，可以配置多个
+        id：必选，唯一标识，出错的时候可以用来定位问题
+        defaultModelType：指定生成实体类的模式
+            1. conditional：默认值，类似hierarchical。如果那个单独的类将只包含一个字段，将不会生成一个单独的类。
+                因此，如果一个表的主键只有一个字段，那么不会为该字段生成单独的实体类，会将该字段合并到基本实体类中。
+            2. flat：所有字段全部生成在一个文件中。
+            3. hierarchical：如果表有主键，那么该模型会产生一个单独的主键实体类，
+                如果表还有BLOB字段，则会为表生成一个包含所有BLOB字段的单独的实体类，
+                然后为所有其他的字段生成一个单独的实体类。
+                插件自动在所有生成的实体类之间维护一个继承关系。
+        targetRuntime:
+            1. MyBatis3：默认的值，生成基于MyBatis3.x以上版本的内容，包括 ***BySample
+            2. MyBatis3Simple：类似MyBatis3，只是不生成 ***BySample
+            3. Ibatis2Java2
+            4. Ibatis2Java5
+        introspectedColumnImpl：该参数可以指定扩展org.mybatis.generator.api.IntrospectedColumn该类的实现类。是对插件的扩展。-->
+    <context id="oracle" defaultModelType="flat" targetRuntime="MyBatis3">
+
+        <!-- 当表名或者字段名为SQL关键字的时候，可以设置该属性为true，会自动给表名或字段名添加 分隔符 -->
+        <property name="autoDelimitKeywords" value="true" />
+        <!-- 指定分隔符，默认值为双引号(")，在Mysql中不能这么写，所以还要将这两个默认值改为反单引号 -->
+        <property name="beginningDelimiter" value="'"/>
+        <property name="endingDelimiter" value="'"/>
+        <!-- 生成的Java文件的编码 -->
+        <property name="javaFileEncoding" value="UTF-8"/>
+        <!-- 格式化java代码 -->
+        <property name="javaFormatter" value="org.mybatis.generator.api.dom.DefaultJavaFormatter"/>
+        <!-- 格式化XML代码 -->
+        <property name="xmlFormatter" value="org.mybatis.generator.api.dom.DefaultXmlFormatter"/>
+
+        <!-- 生成的代码中可以包含注释信息，具体就是生成表或字段的备注信息 -->
+        <commentGenerator>
+            <!-- 阻止生成注释，默认为false -->
+            <property name="suppressAllComments" value="true"/>
+            <!-- 阻止生成的注释包含时间戳，默认为false -->
+            <property name="suppressDate" value="true"/>
+        </commentGenerator>
+
+        <!-- 必须要有的，使用这个配置链接数据库 -->
+        <jdbcConnection driverClass="${driver-class-name}" connectionURL="${url}" userId="${username}" password="${password}">
+            <!-- 这里面可以设置property属性，每一个property属性都设置到driverClass的属性上 -->
+        </jdbcConnection>
+
+        <!-- 用来指定JDBC类型和Java类型如何转换，默认使用JavaTypeResolverDefaultImpl
+            注意一点，默认会先尝试使用Integer，Long，Short等来对应DECIMAL和NUMERIC数据类型 -->
+        <javaTypeResolver type="org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl">
+            <!-- true：使用BigDecimal对应DECIMAL和NUMERIC数据类型
+                 false：默认值
+                    scale>0, length>18：使用BigDecimal
+                    scale=0, length[10,18]：使用Long
+                    scale=0, length[5,9]：使用Integer
+                    scale=0, length<5：使用Short -->
+            <property name="forceBigDecimals" value="true"/>
+        </javaTypeResolver>
+
+        <!-- java模型创建器，是必须要的元素，负责根据表结构生成java实体类
+            targetPackage：生成的类要放的包，真实的包受enableSubPackages属性控制
+            targetProject：目标项目，指定一个存在的目录下，生成的内容会放到指定目录中，如果目录不存在，不会自动建目录 -->
+        <javaModelGenerator targetPackage="com.example.single.datasource.model" targetProject="src/main/java">
+            <!--  只对MyBatis3有效，如果true就会使用构造方法入参，如果false就会使用setter方式。默认为false -->
+            <property name="constructorBased" value="false"/>
+
+            <!-- 在targetPackage的基础上，根据数据库的schema和catalog再生成子package，最终生成的类放在这个package下，默认为false -->
+            <property name="enableSubPackages" value="false"/>
+
+            <!-- 是否创建一个不可变的类，如果为true，那么会创建一个没有setter方法的类，取而代之的是类似constructorBased的类 -->
+            <property name="immutable" value="false"/>
+
+            <!-- 设置一个根对象，如果设置了这个根对象，那么生成的keyClass或者recordClass会继承这个类 -->
+            <property name="rootClass" value="com.example.single.datasource.model.BaseEntity"/>
+
+            <!-- 设置是否在getter方法中，对String类型字段调用trim()方法 -->
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- 生成SQL mapper的XML文件生成器-->
+        <sqlMapGenerator targetPackage="mybatis.oracle" targetProject="src/main/resources">
+            <!-- 在targetPackage的基础上，根据数据库的schema再生成一层package，最终生成的XML放在这个package下，默认为false -->
+            <property name="enableSubPackages" value="false"/>
+        </sqlMapGenerator>
+
+        <!-- 生成Mapper接口
+            type：怎么生成mapper接口
+                ANNOTATEDMAPPER：会生成使用Mapper接口+Annotation的方式创建（SQL生成在annotation中），不会生成对应的XML；
+                MIXEDMAPPER：使用混合配置，会生成Mapper接口，并适当添加合适的Annotation，但是XML会生成在XML中；
+                XMLMAPPER：会生成Mapper接口，接口完全依赖XML；
+            如果context是MyBatis3Simple：只支持ANNOTATEDMAPPER和XMLMAPPER -->
+        <javaClientGenerator targetPackage="com.example.single.datasource.mapper" targetProject="src/main/java" type="XMLMAPPER">
+            <!-- 在targetPackage的基础上，根据数据库的schema再生成一层package，最终生成的类放在这个package下，默认为false -->
+            <property name="enableSubPackages" value="false"/>
+
+            <!-- 可以为所有生成的接口添加一个父接口 -->
+            <property name="rootInterface" value="com.example.single.datasource.mapper.BaseMapper"/>
+        </javaClientGenerator>
+
+        <!-- table标签，可以有一个或多个，对应数据库中的表
+            schema：数据库的schema
+            catalog：数据库的catalog
+            tableName：必填，数据库中的表名。在一般情况下，会根据设置的schema，catalog或tableName去查询数据表，按照下面的流程：
+                1. 如果schema，catalog或tableName中有空格，那么设置的是什么格式，就精确的使用指定的大小写格式去查询
+                2. 否则，如果数据库的标识符使用大写的，那么自动把表名变成大写再查找
+                3. 否则，如果数据库的标识符使用小写的，那么自动把表名变成小写再查找
+                4. 否则，使用指定的大小写格式查询
+                另外的，如果在创建表的时候，使用的""把数据库对象规定大小写，就算数据库标识符是使用的大写，在这种情况下也会使用给定的大小写来创建表名
+                这个时候，请设置delimitIdentifiers="true"即可保留大小写格式
+            alias：为数据表设置的别名，如果设置了alias，那么生成的所有的SELECT SQL语句中，列名会变成：alias_actualColumnName
+            domainObjectName：生成的实体类的名字，如果不设置，直接使用表名作为实体类的名字
+            enableInsert（默认true）：指定是否生成insert语句
+            enableSelectByPrimaryKey（默认true）：指定是否生成按照主键查询对象的语句（getById或getPrimaryKey）
+            enableSelectByExample（默认true）：MyBatis3Simple为false，指定是否生成动态查询语句
+            enableUpdateByPrimaryKey（默认true）：指定是否生成按照主键修改对象的语句
+            enableDeleteByPrimaryKey（默认true）：指定是否生成按照主键删除对象的语句
+            enableDeleteByExample（默认true）：MyBatis3Simple为false，指定是否生成动态删除语句
+            enableCountByExample（默认true）：MyBatis3Simple为false，指定是否生成动态查询总条数语句
+            enableUpdateByExample（默认true）：MyBatis3Simple为false，指定是否生成动态修改语句（只修改对象中不为空的属性）
+            modelType：参考context元素的defaultModelType，相当于覆盖
+            delimitIdentifiers：参考tableName的解释，默认的delimitIdentifiers是双引号
+                如果类似MYSQL这样的数据库，使用的是`反引号，那么还需要设置context的beginningDelimiter和endingDelimiter属性
+            delimitAllColumns：设置是否所有生成的SQL中的列名都使用标识符引起来，默认为false
+         -->
+        <table schema="" tableName="USER_INFO" domainObjectName="UserInfo"
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false">
+
+            <!-- 同 javaModelGenerator 的 constructorBased属性-->
+            <property name="constructorBased" value="false"/>
+
+            <!-- 默认为false，如果设置为true，在生成的SQL中，table名字不会加上catalog或schema； -->
+            <property name="ignoreQualifiersAtRuntime" value="false"/>
+
+            <!-- 同 javaModelGenerator 的 immutable 属性 -->
+            <property name="immutable" value="false"/>
+
+            <!-- 指定是否只生成实体类，如果设置为true，只生成实体类，如果还配置了sqlMapGenerator，那么在mapper XML文件中，只生成resultMap元素 -->
+            <property name="modelOnly" value="false"/>
+
+            <!--  同 javaModelGenerator 的 rootClass 属性 -->
+            <property name="rootClass" value="com.example.single.datasource.model.BaseEntity"/>
+
+            <!-- 同 javaClientGenerator 的  rootInterface 属性 -->
+            <property name="rootInterface" value="com.example.single.datasource.mapper.BaseMapper"/>
+
+            <!-- 如果设置了runtimeCatalog，那么在生成的SQL中，使用该指定的catalog，而不是table元素上的catalog -->
+            <property name="runtimeCatalog" value=""/>
+
+            <!-- 如果设置了runtimeSchema，那么在生成的SQL中，使用该指定的schema，而不是table元素上的schema -->
+            <property name="runtimeSchema" value=""/>
+
+            <!-- 如果设置了runtimeTableName，那么在生成的SQL中，使用该指定的tableName，而不是table元素上的tableName -->
+            <property name="runtimeTableName" value="USER_INFO"/>
+
+            <!-- 该属性只针对MyBatis3Simple有用
+                如果选择的runtime是MyBatis3Simple，那么会生成一个SelectAll方法，如果指定了selectAllOrderByClause，那么会在该SQL中添加指定的这个order条件 -->
+            <property name="selectAllOrderByClause" value="age desc,username asc"/>
+
+            <!-- 如果设置为true，生成的model类会直接使用column本身的名字，而不会再使用驼峰命名方法，比如BORN_DATE，生成的属性名字就是BORN_DATE,而不会是bornDate -->
+            <property name="useActualColumnNames" value="false"/>
+
+            <!-- generatedKey用于生成生成主键的方法
+                如果设置了该元素，会在生成的<insert>元素中生成一条正确的<selectKey>元素，该元素可选
+                column:主键的列名
+                sqlStatement：要生成的selectKey语句 -->
+            <generatedKey column="id" sqlStatement="select SEQ_ID.nextval from dual"/>
+
+            <!-- 该元素会在根据表中列名计算对象属性名之前先重命名列名，非常适合用于表中的列都有公用的前缀字符串的时候，例如：
+                列名：USER_ID, USER_NAME, USER_AGE, USER_ADDRESS
+                那么就可以设置searchString为"^USER_"，并使用空白替换
+                那么生成的User对象中的属性名称就不是userId, userName, userAge, userAddress，而是id, name, age, address -->
+            <columnRenamingRule searchString="^USER_" replaceString=""/>
+
+            <!-- 用来修改表中某个列的属性，column:要重新设置的列名，可以有多个
+                 使用property属性来指定列要生成的属性名称
+                 javaType用于指定生成的实体类的属性类型，使用类型的全限定名
+                 jdbcType用于指定该列的JDBC类型
+                 typeHandler 用于指定该列使用到的TypeHandler，如果要指定，配置类型处理器的全限定名
+                 同 table 元素的 delimitAllColumns 配置，默认为false
+             -->
+            <columnOverride column="USER_NAME" property="userName" />
+
+            <!-- ignoreColumn需要忽略的列，如果设置了该列，那么在生成的代码中都不会有该列出现，可以有多个
+               column:指定要忽略的列的名字
+               delimitedColumnName：同table元素的delimitAllColumns配置，默认为false -->
+            <ignoreColumn column="PASSWORD" delimitedColumnName=""/>
+        </table>
+    </context>
+</generatorConfiguration>
